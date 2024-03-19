@@ -6,6 +6,18 @@ import openpyxl
 from openpyxl.styles import Font
 from rich.prompt import Prompt 
 import time
+import navigate
+
+
+#REVERSAL
+#for the purposes of statistical analysis, some adective pairs indicate a positive response when rated high, while others do so when rated low
+# values to be reversed are:
+reversal = ["amusing", "ignorant", "pretentious"]
+
+
+#lists of guises for which ratings are to be exracted.
+majList = ['s1_maj_ratings', 's2_maj_ratings','s3_maj_ratings','s4_maj_ratings']
+rmlList = ['s1_rml_ratings', 's2_rml_ratings','s3_rml_ratings','s4_rml_ratings']
 
 def label_sheet(wb, sheetName, old):
     sheet = wb[old]
@@ -39,11 +51,11 @@ def label_sheet(wb, sheetName, old):
     c2.value = "Stimulus voice"
     sheet.column_dimensions['B'].width = 14
     c2.font = Font(bold=True)
-    c3.value = "amusing"
+    c3.value = "amusing (rev)"
     c4.value = "open-minded"
     c5.value = "attractive"
     c6.value = "trustworthy"
-    c7.value = "ignorant"
+    c7.value = "ignorant (rev)"
     c8.value = "polite"
     c9.value = "ambitious"
     c10.value = "international"
@@ -56,18 +68,28 @@ def label_sheet(wb, sheetName, old):
     c17.value = "honest"
     c18.value = "competent"
     c19.value = "natural"
-    c20.value = "pretentious"
+    c20.value = "pretentious (rev)"
     return sheet
 
+def reversable(adjective, number):
+    """Reverses value of ajectives that appear in list called 'reversal'"""
+    value = float(number)
+    if adjective in reversal:
+       # print(f'{adjective} is present in the list')
+       # print("Value was", value)
+        final_value = 100-value
+       # print("Value IS", final_value)
+    else:
+        final_value = value
+       # print(f'{adjective} No No No in List')
+    return final_value
 
 def main(folder_path, thisPath, location):
-       
     langLabels = location.split("_")
     rmlLabel = langLabels[0]
     majLabel = langLabels[1]
 
     wb = openpyxl.Workbook()
-
     wb.create_sheet("sheet1")
     wb.create_sheet("sheet2")
          
@@ -84,15 +106,12 @@ def main(folder_path, thisPath, location):
             data = f.read()
             if data == "":
                 print("\nNO CONTENT\n")
-            print(f'\n Currently processing: {filename}\n')
+            navigate.processing_info(filename)
             json_object = json.loads(data)
             meta = json_object['meta']
-            print("META IS: ")
-            print(meta)
+            print(f'META IS: {meta}\n')
             p_id = meta['participant_id']
-            majList = ['s1_maj_ratings', 'f1', 'f3']
-            rmlList = ['s1_rml_ratings', 'f2', 'f4']
-
+            
             for item in majList:
                 print(f'MAJ Item is: {item}')
                 maj = json_object[item]
@@ -105,7 +124,9 @@ def main(folder_path, thisPath, location):
                     cell_stim = sheetMaj.cell(row = rowNumData, column = 2)
                     cell_stim.value = item
                     cell = sheetMaj.cell(row = rowNumData, column = columnNumData)
-                    cell.value = float(maj[key])
+                    final_value = reversable(key, maj[key])
+                    #cell.value = float(maj[key])
+                    cell.value = final_value
                     columnNumData +=1
                 rowNumData +=1
                 columnNumData = 3
@@ -121,29 +142,36 @@ def main(folder_path, thisPath, location):
                     cell_stim = sheetRml.cell(row = rowNumDataRml, column = 2)
                     cell_stim.value = item
                     cell = sheetRml.cell(row = rowNumDataRml, column = columnNumData)
-                    cell.value = float(rml[key])
+                    final_value = reversable(key, rml[key])
+                    cell.value = final_value
+                    #cell.value = float(rml[key])
                     columnNumData +=1
                 rowNumDataRml+=1
                 columnNumData = 3
-    wb.save(thisPath + "\\mgtData" + location + ".xlsx")
-
-
+    output_file = "mgtData" + location + ".xlsx"
+    output_path = os.path.join(thisPath, "outputs/")
+    print(f' this path is {thisPath}')
+    output_fullPath = os.path.join(output_path, output_file)
+    wb.save(output_fullPath)
+    navigate.completed_info("MGT", output_file)
+    
 def exract_mgt(path, directoryPath):
     location = Prompt.ask('Enter the code for the data to be extracted. Default is: CYM_ENG',
                         default='CYM_ENG',
-                        choices=['LMO_IT', 'LtzGer_GerBE'])
-    print(f'\n\t\t\tData folder selected: {location}')
+                        choices=['LMO_IT', 'LtzGer_GerBE', 'exit'])
+    if location == "exit":
+            navigate.abort()
+    navigate.data_selection(location)
+    
     folder_path = os.path.join(path, location)
     if os.path.isdir(folder_path):
         if  os.listdir(folder_path):
-            print("\n You have selected to work in the following folder: ")
-            print(folder_path)
-            print("\n")
-            time.sleep(2.5)
+           # navigate.selection(folder_path)
+            time.sleep(1.0)
             main(folder_path, directoryPath, location)
             print("\n")
         else:
-            print(f'\n\tEMPTY DIRECTORY: The folder \ {folder_path} \ is empty.\n')
+            navigate.is_empty(folder_path)            
     else:
-           print(f'\n\tNOT FOUND: There is no folder named {location} inside {path}\n\t Please check folder and try again.\n')
-
+        navigate.locate(directoryPath, folder_path)
+        navigate.not_found(location)

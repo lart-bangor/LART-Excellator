@@ -6,7 +6,7 @@ import json
 import os,glob
 import openpyxl
 from rich.prompt import Prompt 
-import sys
+import navigate
 
 #REVERSAL
 #for the purposes of statistical analysis, some adective pairs indicate a positive response when rated high, while others do so when rated low
@@ -88,11 +88,6 @@ def reversable(header, number):
         #print(f'{adjective} No No No in List')
     return final_value
 
-def abort():
-    print("\nOperation aborted")
-    sys.exit()
-
-
 def main(folder_path, thisPath, location):
     langLabels = location.split("_")
     rmlLabel = langLabels[0]
@@ -112,14 +107,15 @@ def main(folder_path, thisPath, location):
        # with open(filename, 'r') as f:
         with open(filename, encoding="latin-1") as f:
             text = f.read()
-            print(f'\n Currently processing: {filename}\n')
+            navigate.processing_info(filename)
             json_object = json.loads(text)
             maj = json_object["Ratings_atolRatingsMaj"]
             rml = json_object["Ratings_atolRatingsRml"]
             
             for key in maj:
                 cell_f = sheetMaj.cell(row = rowNumData, column = 1)
-                cell_f.value = filename
+                #cell_f.value = filename
+                cell_f.value = os.path.basename(filename)
                 cell = sheetMaj.cell(row = rowNumData, column = columnNumData)
                 final_value = reversable(key, maj[key])
                 cell.value = final_value
@@ -128,31 +124,36 @@ def main(folder_path, thisPath, location):
             
             for key in rml:
                 cell_f = sheetRml.cell(row = rowNumData, column = 1)
-                cell_f.value = filename
+                cell_f.value = os.path.basename(filename)
                 cell = sheetRml.cell(row = rowNumData, column = columnNumData)
                 final_value = reversable(key, rml[key])
                 cell.value = final_value
                 columnNumData +=1
             rowNumData+=1
             columnNumData = 2
-    wb.save(thisPath + "\\atolData" + location + ".xlsx")
-
+    output_file = "atolData" + location + ".xlsx"
+    output_path = os.path.join(thisPath, "outputs/")
+    output_fullPath = os.path.join(output_path, output_file)
+    wb.save(output_fullPath)
+    navigate.completed_info("AToL", output_file)
+    
 def extract_atol(path, directoryPath):
-
-    location = Prompt.ask('Enter the code for the data to be extracted. Default is: CYM_ENG',
+    location = Prompt.ask('\t\tEnter the code for the data to be extracted (Default is: CYM_ENG).',
                         default='CYM_ENG',
                         choices=['LMO_IT', 'LtzGer_GerBE', 'exit'])
     if location == "exit":
-            abort()
-    print(f'\n\t\t\tData folder selected: {location}')
+            navigate.abort()
+    navigate.data_selection(location)
     folder_path = os.path.join(path, location)
     if os.path.isdir(folder_path):
         if  os.listdir(folder_path):
-            print(f'\n You have selected to work in the following folder: {folder_path}\n')
-            time.sleep(2.5)
+          #  navigate.selection(folder_path)
+            time.sleep(1.0)
             main(folder_path, directoryPath, location)
             print("\n")
         else:
-            print(f'\n\tEMPTY DIRECTORY: The folder \ {folder_path} \ is empty.\n')
+            navigate.is_empty(folder_path)            
     else:
-           print(f'\n\tNOT FOUND: There is no folder named {location} inside {path}\n\t Please check folder and try again.\n')
+           navigate.locate(directoryPath, folder_path)
+           navigate.not_found(location)
+           
