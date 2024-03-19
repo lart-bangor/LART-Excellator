@@ -33,7 +33,8 @@ import navigate
 #as above, these are the adjectives whose value must be reveresed, called by reversable()
 reversal = ["appeal", "beauty", "pleasure", "flow", "smoothness", "logic", "precision", "sistem", "ambiguity"]
 
-def label_sheet(wb, sheetName, old):
+def label_sheet(wb: str, sheetName: str, old: str):
+    '''Initiates workbook, resets the name of main sheet and sets up cells with sheet headers'''
     sheet = wb[old]
     sheet.title = sheetName
     wb.active = wb[sheetName]
@@ -73,7 +74,7 @@ def label_sheet(wb, sheetName, old):
     c16.value = "structure"
     return sheet
 
-def reversable(header, number):
+def reversable(header: str, number: str) -> float:
     """Reverses value of ajectives that appear in list called 'reversal'"""
     value = float(number)
     splitHeaer = header.split("_")
@@ -88,7 +89,7 @@ def reversable(header, number):
         #print(f'{adjective} No No No in List')
     return final_value
 
-def main(folder_path, thisPath, location):
+def main(folder_path: str, thisPath: str, location: str) -> None:
     langLabels = location.split("_")
     rmlLabel = langLabels[0]
     majLabel = langLabels[1]
@@ -137,10 +138,10 @@ def main(folder_path, thisPath, location):
     wb.save(output_fullPath)
     navigate.completed_info("AToL", output_file)
     
-def extract_atol(path, directoryPath):
+def extract_atol(path: str, directoryPath: str) -> None:
     location = Prompt.ask('\t\tEnter the code for the data to be extracted (Default is: CYM_ENG).',
                         default='CYM_ENG',
-                        choices=['LMO_IT', 'LtzGer_GerBE', 'exit'])
+                        choices=['CYM_ENG', 'LMO_IT', 'LTZ_GER', 'exit'])
     if location == "exit":
             navigate.abort()
     navigate.data_selection(location)

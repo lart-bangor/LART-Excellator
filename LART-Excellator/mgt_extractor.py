@@ -19,7 +19,8 @@ reversal = ["amusing", "ignorant", "pretentious"]
 majList = ['s1_maj_ratings', 's2_maj_ratings','s3_maj_ratings','s4_maj_ratings']
 rmlList = ['s1_rml_ratings', 's2_rml_ratings','s3_rml_ratings','s4_rml_ratings']
 
-def label_sheet(wb, sheetName, old):
+def label_sheet(wb: str, sheetName: str, old: str):
+    '''Initiates workbook, resets the name of main sheet and sets up cells with sheet headers'''
     sheet = wb[old]
     sheet.title = sheetName
     wb.active = wb[sheetName]
@@ -71,8 +72,8 @@ def label_sheet(wb, sheetName, old):
     c20.value = "pretentious (rev)"
     return sheet
 
-def reversable(adjective, number):
-    """Reverses value of ajectives that appear in list called 'reversal'"""
+def reversable(adjective: str, number: str) -> float:
+    """Reverses rating for ajectives that appear in list called 'reversal'"""
     value = float(number)
     if adjective in reversal:
        # print(f'{adjective} is present in the list')
@@ -84,7 +85,7 @@ def reversable(adjective, number):
        # print(f'{adjective} No No No in List')
     return final_value
 
-def main(folder_path, thisPath, location):
+def main(folder_path: str, thisPath, location: str) -> None:
     langLabels = location.split("_")
     rmlLabel = langLabels[0]
     majLabel = langLabels[1]
@@ -155,10 +156,10 @@ def main(folder_path, thisPath, location):
     wb.save(output_fullPath)
     navigate.completed_info("MGT", output_file)
     
-def exract_mgt(path, directoryPath):
-    location = Prompt.ask('Enter the code for the data to be extracted. Default is: CYM_ENG',
+def exract_mgt(path: str, directoryPath: str) -> None:
+    location = Prompt.ask('/t/tEnter the code for the data to be extracted. Default is: CYM_ENG',
                         default='CYM_ENG',
-                        choices=['LMO_IT', 'LtzGer_GerBE', 'exit'])
+                        choices=['CYM_ENG', 'LMO_IT', 'LTZ_GER', 'exit'])
     if location == "exit":
             navigate.abort()
     navigate.data_selection(location)

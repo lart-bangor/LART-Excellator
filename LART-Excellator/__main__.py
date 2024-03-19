@@ -34,9 +34,6 @@ print(f'\n{selection:>30} [turquoise2]{dataType}[/turquoise2]')
 
 folder_path = os.path.join(directoryPath, "data", dataType)
 
-
-#'\\data\\' + dataType
-
 if os.path.isdir(folder_path):
     if  os.listdir(folder_path):
         #navigate.selection(folder_path)
