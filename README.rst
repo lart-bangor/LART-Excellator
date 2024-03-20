@@ -9,7 +9,7 @@ On start, user is required to choose the task (AToL or MGT. Default: AToL) for w
 
 - CYM_ENG 
 - LMO_IT
-- LtzGer_GerBE
+- LTZ_GER
 
 License
 -------
