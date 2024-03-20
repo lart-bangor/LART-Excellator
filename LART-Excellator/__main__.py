@@ -43,7 +43,7 @@ if os.path.isdir(folder_path):
         elif dataType == "MGT":
              mgt_extractor.exract_mgt(folder_path, directoryPath)
         else:
-             print("An ERROR has occured with task selection")
+             print("An [red]ERROR[/red] has occured with task selection")
         print("\n")
     else:
         navigate.is_empty(folder_path)
