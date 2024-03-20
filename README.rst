@@ -16,3 +16,5 @@ License
 This code is free and open source, available under the Apache License,
 Version 2.0. See the :code:`LICENSE` file for more information.
 
+.. _PsychoPy: https://www.psychopy.org/
+.. _L'ART Research Assistant: https://lart.readthedocs.io/projects/research-assistant
